@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" href=""/>
+    <title>Pixel Art 1Bit</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="main__app__container">
+    <h1>Color Depth: 1 bit per pixel</h1>
+    <button id="clearGrid" onclick="pixelArtBit.clearGrid();">Clear Grid</button>
+    <button id="showBinary" onclick="pixelArtBit.showBinary();">Show/Hide Binary</button>
+    <button id="invert" onclick="pixelArtBit.invertGrid();">Invert</button>
+    <button id="flipImage" onclick="pixelArtBit.flipGrid();">Flip Image</button>
+
+    <div class="app__content">
+        <div class="app__panel app__grid">
+            <button id="zoomIn">+</button>
+            <button id="zoomOut">-</button>
+            <table id="grid"></table>
+        </div>
+        <div class="app__panel app__dataCode">
+            <div class="app__dataCode__block">
+                <h3>Binary Code</h3>
+                <div id="binaryCode"></div>
+            </div>
+            <div class="app__dataCode__block">
+                <h3>Hex Code</h3>
+                <div id="hexCode"></div>
+            </div>
+            <div class="app__dataCode__block">
+                <h3>Input Code</h3>
+                <textarea id="inputDataArea"
+                    class="inputDataArea"
+                    spellcheck="false">0x00, 0x00, 0xff, 0x00, 0x00, 0x28, 0x5e, 0x27, 0x77, 0xeb, 0xcb, 0xfa, 0x77, 0x27, 0x0e, 0x00, 0x00, 0x0c, 0x11, 0x04, 0x0c, 0x88, 0xc6, 0xe0, 0x77, 0x26, 0x32, 0xf4, 0xe2, 0x8c, 0x0d, 0x06</textarea>
+                <button id="inputDataAreaSubmit">Load</button>
+
+            </div>
+        </div>
+    </div>
+
+    <span>File Size: <small id="fileSize">8</small> Bytes</span>
+</div>
+<script src="main.js"></script>
+</body>
+</html>
