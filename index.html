@@ -18,8 +18,15 @@
 
     <div class="app__content">
         <div class="app__panel app__grid">
-            <button id="zoomIn">+</button>
-            <button id="zoomOut">-</button>
+            <div class="app__grid__controls">
+                <select name="gridSizeSelector" id="gridSizeSelector">
+                    <option value="8">8x8px</option>
+                    <option value="16">16x16px</option>
+                    <option value="32">32x32px</option>
+                </select>
+                <button id="zoomIn">+</button>
+                <button id="zoomOut">-</button>
+            </div>
             <table id="grid"></table>
         </div>
         <div class="app__panel app__dataCode">

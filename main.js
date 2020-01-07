@@ -26,15 +26,19 @@ class PixelArtBit {
     }
 
     initEvents() {
-        document.getElementById("inputDataAreaSubmit").addEventListener('click',
+        document.getElementById('gridSizeSelector').addEventListener('change',
+          (e) => this.readGridSelectSize(e)
+        );
+
+        document.getElementById('inputDataAreaSubmit').addEventListener('click',
             () => this.loadDataIntoGrid()
         );
 
-        document.getElementById("zoomIn").addEventListener('click',
+        document.getElementById('zoomIn').addEventListener('click',
             () => this.zoom('in')
         );
 
-        document.getElementById("zoomOut").addEventListener('click',
+        document.getElementById('zoomOut').addEventListener('click',
             () => this.zoom('out')
         );
     }
@@ -77,29 +81,6 @@ class PixelArtBit {
         this.generateBinaryCode();
 
         return this;
-    }
-
-    generateBinaryCode3() {
-        let loops = this.gridWidth / this.gridModule,
-            currentLoop = 1;
-
-        this.binaryCode = [];
-
-        do {
-            for (let i = 0; i < this.gridWidth; i++) {
-                let yPos = (this.gridModule * currentLoop) - 1,
-                    byte = '';
-
-                for (let j = yPos; j > yPos - (this.gridModule); j--) {
-                    byte += this.grid.rows[j].cells[i].innerText;
-                }
-
-                this.binaryCode.push(byte);
-            }
-            currentLoop++;
-        } while (currentLoop <= loops);
-
-        this.printCode(this.binaryCode);
     }
 
     generateBinaryCode() {
@@ -164,32 +145,6 @@ class PixelArtBit {
         this.generateBinaryCode();
     }
 
-    /*fillGridWithDataOld(data) {
-        const byte = data.join('').split(''),
-            loops = this.gridWidth / this.gridModule;
-
-        let bit = 0,
-            currentLoop = 1;
-
-        do {
-            for (let i = 0; i < this.gridWidth; i++) {
-                let yPos = (this.gridModule * currentLoop) - 1;
-
-                for (let j = yPos; j > yPos - (this.gridModule); j--) {
-
-                    let cell = this.grid.rows[j].cells[i],
-                        currentBit = byte[bit++];
-
-                    cell.style.backgroundColor = this.colors[currentBit];
-                    cell.innerText = currentBit;
-                }
-            }
-            currentLoop++;
-        } while (currentLoop <= loops);
-
-        this.generateBinaryCode();
-    }*/
-
     fillGridWithData(data) {
         const byte = data.join('').split(''),
             fullModule = this.gridModule * 2,
@@ -221,6 +176,8 @@ class PixelArtBit {
         } while (currentSubmodule < totalSubmoduleLoops);
 
         this.generateBinaryCode();
+
+        return this;
     }
 
     invertGrid() {
@@ -258,23 +215,41 @@ class PixelArtBit {
         this.generateBinaryCode();
     }
 
+    readGridSelectSize(e) {
+        const newGridSize = e.currentTarget.value;
+        const currentData = this.binaryCode;
+console.info( 'new size: ', e, newGridSize, this.binaryCode );
+        this.setDataGridSize(newGridSize)
+          .generateGrid()
+          .fillGridWithData(currentData);
+    }
+
     loadDataIntoGrid() {
-        let data = (document.getElementById('inputDataArea').value).replace(/\s+/g, '');
+        const data = this.getNewGridData(document.getElementById('inputDataArea').value);
+        const gridSize = Math.sqrt(data.length * 8);
+
+        this.setDataGridSize(gridSize)
+            .generateGrid()
+            .fillGridWithData(data);
+    }
+
+    getNewGridData(data) {
+        data = data.replace(/\s+/g, '');
         data = data.split(',').filter(Boolean);
 
         data = data.map(value => value.replace(/0x/g, ''));
         data = data.map(value => this.padToEight(this.Hex2Bin(value)));
 
-        this.setDataGridSize(data)
-            .generateGrid()
-            .fillGridWithData(data);
+        return data;
     }
 
-    setDataGridSize(data) {
-        let gridSize = Math.sqrt(data.length * 8);
+    setDataGridSize(gridSize) {
+        const gridSizeSelector = document.getElementById('gridSizeSelector');
 
         this.gridWidth = gridSize;
         this.gridHeight = gridSize;
+
+        gridSizeSelector.value = gridSize;
 
         return this;
     }

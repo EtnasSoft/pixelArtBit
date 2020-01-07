@@ -57,7 +57,7 @@ h1, h3 {
     background: var(--main-dark-grey);
 }
 
-button {
+button, select {
     margin: 12px;
     background-color: #3E3D3D;
     color: var(--main-marfil);
