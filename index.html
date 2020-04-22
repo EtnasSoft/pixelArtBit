@@ -13,6 +13,7 @@
     <h1>Color Depth: 1 bit per pixel</h1>
     <button id="clearGrid" onclick="pixelArtBit.clearGrid();">Clear Grid</button>
     <button id="showBinary" onclick="pixelArtBit.showBinary();">Show/Hide Binary</button>
+    <button id="showGuides" onclick="pixelArtBit.showGuides();">Show/Hide Guides</button>
     <button id="invert" onclick="pixelArtBit.invertGrid();">Invert</button>
     <button id="flipImage" onclick="pixelArtBit.flipGrid();">Flip Image</button>
 
@@ -27,22 +28,37 @@
                 <button id="zoomIn">+</button>
                 <button id="zoomOut">-</button>
             </div>
+
             <table id="grid"></table>
         </div>
         <div class="app__panel app__dataCode">
             <div class="app__dataCode__block">
-                <h3>Binary Code</h3>
-                <div id="binaryCode"></div>
+                <h3>Binary Code <i class="show__dataCode">show/hide</i></h3>
+                <div id="binaryCode" class="dataCode"></div>
             </div>
             <div class="app__dataCode__block">
-                <h3>Hex Code</h3>
-                <div id="hexCode"></div>
+                <h3>Hex Code <i class="show__dataCode">show/hide</i></h3>
+                <div id="hexCode" class="dataCode"></div>
             </div>
             <div class="app__dataCode__block">
                 <h3>Input Code</h3>
+                <label for="dataCodeHeaderCheckbox">
+                    <input id="dataCodeHeaderCheckbox" class="dataCode__header--checkbox" type="checkbox" checked>Data has header
+                </label>
                 <textarea id="inputDataArea"
-                    class="inputDataArea"
-                    spellcheck="false">0x00, 0x00, 0xff, 0x00, 0x00, 0x28, 0x5e, 0x27, 0x77, 0xeb, 0xcb, 0xfa, 0x77, 0x27, 0x0e, 0x00, 0x00, 0x0c, 0x11, 0x04, 0x0c, 0x88, 0xc6, 0xe0, 0x77, 0x26, 0x32, 0xf4, 0xe2, 0x8c, 0x0d, 0x06</textarea>
+                    class="input__data__area"
+                    spellcheck="false">24, 32,
+0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0xB0, 0xF8,
+0xF0, 0xF0, 0xF0, 0xF8, 0xF8, 0xF8, 0xF8, 0xF0, 0xF0,
+0xF0, 0x78, 0x30, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF,
+0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7E, 0xFC,
+0xF8, 0xE0, 0xC0, 0x1F, 0x3F, 0x7F, 0xFF, 0xFF, 0xFF,
+0xFF, 0xFF, 0xFF, 0xFF, 0xF0, 0xF9, 0xFF, 0xFF, 0xFF,
+0xFF, 0xFF, 0xFF, 0xFF, 0xFC, 0xFE, 0x7F, 0x3F, 0x1F,
+0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x83, 0xFF, 0xFF,
+0xFF, 0xFF, 0xFF, 0xFF, 0xF3, 0x07, 0x07, 0x0F, 0xFF,
+0xFF, 0xFF, 0xFF, 0xFE, 0xF8, 0xE0,</textarea>
                 <button id="inputDataAreaSubmit">Load</button>
 
             </div>
@@ -51,6 +67,10 @@
 
     <span>File Size: <small id="fileSize">8</small> Bytes</span>
 </div>
+<script
+    src="https://code.jquery.com/jquery-3.5.0.slim.min.js"
+    integrity="sha256-MlusDLJIP1GRgLrOflUQtshyP0TwT/RHXsI1wWGnQhs="
+    crossorigin="anonymous"></script>
 <script src="main.js"></script>
 </body>
 </html>

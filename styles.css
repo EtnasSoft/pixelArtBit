@@ -5,6 +5,7 @@
     --main-marfil: #DDD;
     --main-white: #FFF;
     --main-dark-grey: #333;
+    --main-background-grey: #3E3D3D;
 }
 
 body {
@@ -21,45 +22,105 @@ h1, h3 {
 }
 
 #grid {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 11pt;
     margin-left: auto;
     margin-right: auto;
-    font-size: 11pt;
+    margin-top: 2rem;
     text-shadow: var(--main-black) 1px 1px 0;
+    counter-reset: row;
+    counter-reset: col;
 }
 
-#grid.hideBinary {
+#grid.binary--hide,
+#grid.binary--hide td:hover {
     color: transparent !important;
     text-shadow: none !important;
 }
 
-#grid {
-    border-collapse: collapse;
+#grid.guides--off td {
+    border: 0 !important;
+    width: 32px;
+    height: 32px;
 }
 
 #grid tr td {
-    border: 1px solid var(--main-dark-grey);
     background: var(--main-cell-color);
-    width: 30px;
-    height: 30px;
-    text-align: center;
+    border: 1px solid var(--main-dark-grey);
     cursor: pointer;
+    height: 30px;
+    position: relative;
+    text-align: center;
+    width: 30px;
 }
 
 #grid tr td:hover,
 #palette tr td:hover {
-    box-shadow: 1px 1px 0 #3E3D3D inset;
-    border-color: #3E3D3D;
+    box-shadow: 1px 1px 0 var(--main-background-grey) inset;
+    border-color: var(--main-background-grey);
     color: var(--main-white);
-    background-color: #3E3D3D !important;
+    background-color: var(--main-background-grey) !important;
+}
+
+#grid tr td::selection {
+    background-color: transparent;
+    color: inherit;
 }
 
 #grid tr td.clicked {
     background: var(--main-dark-grey);
 }
 
+#grid > tbody > tr:first-of-type td:after {
+    content: counters(row, '');
+    position: absolute;
+    top: -18px;
+    color: #999;
+    text-align: center;
+    left: 0;
+    width: inherit;
+    height: 15px;
+}
+
+#grid > tbody > tr:first-of-type td:not(:first-of-type) {
+    counter-increment: row;
+}
+
+#grid > tbody tr td:first-of-type:before {
+    content: counters(col, '');
+    position: absolute;
+    top: 10px;
+    color: #999;
+    text-align: center;
+    left: -29px;
+    width: inherit;
+    height: 15px;
+}
+
+#grid > tbody tr:not(:first-of-type) {
+    counter-increment: col;
+}
+
+#grid tr:nth-child(8n) td {
+    border-bottom: 1px solid #999;
+}
+
+#grid tr td:nth-child(8n) {
+    border-right: 1px solid #999;
+}
+
+#grid tr:last-child td {
+    border-bottom: 1px solid var(--main-dark-grey);
+}
+
+#grid tr td:last-child {
+    border-right: 1px solid var(--main-dark-grey);
+}
+
 button, select {
     margin: 12px;
-    background-color: #3E3D3D;
+    background-color: var(--main-background-grey);
     color: var(--main-marfil);
     cursor: pointer;
     border: 1px solid var(--main-black);
@@ -73,28 +134,44 @@ button:hover {
     background-color: #222;
 }
 
-.inputDataArea {
-    width: 100%;
+.input__data__area {
     background-color: #3e3d3d;
     border: 1px solid var(--main-black);
-    padding: 10px;
+    box-sizing: border-box;
     color: var(--main-marfil);
     font-size: 15px;
-    min-height: 75px;
+    min-height: 120px;
+    padding: 10px;
+    width: 100%;
 }
 
 #main__app__container {
-    max-width: 1024px;
     margin: auto;
 }
 
-
 .app__content {
     display: flex;
-    justify-content: space-between;
+    align-items: flex-start;
+    justify-content: center;
 }
 
 .app__panel {
-    width: 50%;
     padding: 20px;
+}
+
+.app__dataCode {
+    max-width: 500px;
+}
+
+.app__dataCode__block {
+    position: relative;
+}
+
+.show__dataCode {
+    color: cornflowerblue;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 24px;
+    margin-left: 6px;
+    position: absolute;
 }

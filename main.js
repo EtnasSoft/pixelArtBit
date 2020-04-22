@@ -2,8 +2,8 @@ const gridDefaultOptions = {
     grid: 'grid',
     colors: ['#1D1E22', '#FFFFFF'],
     binary: ['0', '1'],
-    gridWidth: 16,
-    gridHeight: 16,
+    gridWidth: 8,
+    gridHeight: 8,
     gridModule: 8,
     currentHexCode: '',
     currentBinaryCode: []
@@ -21,7 +21,9 @@ class PixelArtBit {
         this.gridModule = gridOptions.gridModule;
         this.currentZoom = 1;
         this.zoomFactor = 0.1;
-
+        this.clicking = false;
+        this.currentCell = null;
+        this.mouseMove = false;
         this.initEvents();
     }
 
@@ -41,6 +43,9 @@ class PixelArtBit {
         document.getElementById('zoomOut').addEventListener('click',
             () => this.zoom('out')
         );
+
+        const dataCodeToggleButtons = document.querySelectorAll('.show__dataCode');
+        [...dataCodeToggleButtons].map(element => element.addEventListener('click', (e) => this.toggleDataCode(e)));
     }
 
     zoom(type) {
@@ -49,6 +54,11 @@ class PixelArtBit {
             Math.max(0.1, this.currentZoom - this.zoomFactor);
 
         this.grid.style.transform = `scale(${this.currentZoom})`;
+    }
+
+    toggleDataCode(e) {
+        const ele = e.target;
+        $(ele).parent().next().toggle();
     }
 
     checkHex(n) {
@@ -69,38 +79,62 @@ class PixelArtBit {
 
         this.grid.innerHTML = '';
 
-        for (let i = 0; i < this.gridWidth; i++) {
+        for (let i = 0; i < this.gridHeight; i++) {
             row = this.grid.insertRow(i);
-            for (let j = 0; j < this.gridHeight; j++) {
+            for (let j = 0; j < this.gridWidth; j++) {
                 cell = row.insertCell(j);
-                cell.onclick = (e) => this.clickCell(e.currentTarget);
+                //cell.onclick = (e) => this.clickCell(e.currentTarget);
                 cell.innerText = '0';
             }
         }
 
+        this.attachGridEvents();
         this.generateBinaryCode();
 
         return this;
     }
 
+    attachGridEvents() {
+        $(this.grid)
+            .off()
+            .on('mousedown', 'td', (e) => {
+                this.clicking = true;
+                this.currentCell = e.target;
+                this.clickCell(this.currentCell);
+                console.info( 'click ', this.currentCell );
+            })
+            .on('mouseup', (e) => {
+                this.clicking = false;
+            })
+            .on('mousemove', (e) => {
+                if ((this.clicking === false) || this.currentCell === e.target) {
+                    return false;
+                }
+                this.currentCell = e.target;
+                this.clickCell(this.currentCell);
+            });
+    }
+
     generateBinaryCode() {
-        const fullModule = this.gridModule * 2,
-            totalLoops = this.gridWidth / this.gridModule,
-            totalSubmodules = 2,
+        const totalLoops = this.gridWidth / this.gridModule,
+            totalSubmodules = totalLoops,
+            fullModule = this.gridModule * totalSubmodules,
             totalSubmoduleLoops = totalLoops / totalSubmodules;
 
         let currentSubmodule = 0;
 
         this.binaryCode = [];
-
+        // console.info( `Total Loops: ${totalLoops}` );
         do {
             for (let currentLoop = 0; currentLoop < totalLoops; currentLoop++) {
                 let submodulePos = currentSubmodule * fullModule;
                 for (let currentCol = submodulePos; currentCol < submodulePos + fullModule; currentCol++) {
+                    // console.info( `current Col: ${currentCol}, total: ${submodulePos}, ${fullModule}` );
                     let currentCelPos = ((currentLoop + 1) * this.gridModule) - 1,
                         byte = '';
 
                     for (let currentCell = currentCelPos; currentCell > currentCelPos - this.gridModule; currentCell--) {
+                        //console.info( `currentCell: ${currentCell}, currentCol: ${currentCol}` );
                         byte += this.grid.rows[currentCell].cells[currentCol].innerText;
                     }
 
@@ -145,11 +179,31 @@ class PixelArtBit {
         this.generateBinaryCode();
     }
 
+    fillGridWithDataxx(data) {
+        const byte = data.join('').split('');
+        let bit = 0;
+
+        console.info( `Fill Grid with Data. Width: ${this.gridWidth}, Height: ${this.gridHeight}` );
+
+        for (let x = 0; x < this.gridWidth; x++) {
+            for (let y = this.gridHeight - 1; y >= 0; y--) {
+                let cell = this.grid.rows[y].cells[x],
+                    currentBit = byte[bit++];
+                cell.style.backgroundColor = this.colors[currentBit];
+                cell.innerText = currentBit;
+            }
+        }
+
+        this.generateBinaryCode();
+
+        return this;
+    }
+
     fillGridWithData(data) {
         const byte = data.join('').split(''),
-            fullModule = this.gridModule * 2,
             totalLoops = this.gridWidth / this.gridModule,
-            totalSubmodules = 2,
+            totalSubmodules = totalLoops,
+            fullModule = this.gridModule * totalSubmodules,
             totalSubmoduleLoops = totalLoops / totalSubmodules;
 
         let bytes = 0, bit = 0;
@@ -163,6 +217,8 @@ class PixelArtBit {
                     for (let currentCell = currentCelPos; currentCell > currentCelPos - this.gridModule; currentCell--) {
                         let cell = this.grid.rows[currentCell].cells[currentCol],
                             currentBit = byte[bit++];
+
+                        // console.info( `Style -> currentCell ${currentCell} currentCol ${currentCol}` );
 
                         cell.style.backgroundColor = this.colors[currentBit];
                         cell.innerText = currentBit;
@@ -203,39 +259,57 @@ class PixelArtBit {
     }
 
     showBinary() {
-        document.getElementById('grid').className =
-            (document.getElementById('grid').className === 'hideBinary') ? '' : 'hideBinary';
+        $(this.grid).toggleClass('binary--hide');
+    }
+
+    showGuides() {
+        $(this.grid).toggleClass('guides--off');
     }
 
     clickCell(cell) {
         let inverseCellValue = this.getInverseCellValue(cell);
         cell.style.backgroundColor = this.colors[inverseCellValue];
         cell.innerText = this.binary[inverseCellValue];
-
+console.info( 'inverse: ', inverseCellValue );
         this.generateBinaryCode();
     }
 
     readGridSelectSize(e) {
         const newGridSize = e.currentTarget.value;
-        const currentData = this.binaryCode;
-console.info( 'new size: ', e, newGridSize, this.binaryCode );
-        this.setDataGridSize(newGridSize)
+        const newDataSize = newGridSize * newGridSize / this.gridModule;
+        const currentData = this.resizeArr(this.binaryCode, newDataSize, "00000000");
+
+        console.info( 'new size: ', e, newGridSize, currentData, this.gridWidth, this.gridHeight );
+
+        this.setDataGridSize(newGridSize, newGridSize)
           .generateGrid()
           .fillGridWithData(currentData);
     }
 
-    loadDataIntoGrid() {
-        const data = this.getNewGridData(document.getElementById('inputDataArea').value);
-        const gridSize = Math.sqrt(data.length * 8);
+    resizeArr(arr, newSize, defaultValue) {
+        return [ ...arr, ...Array(Math.max(newSize - arr.length, 0)).fill(defaultValue)];
+    }
 
-        this.setDataGridSize(gridSize)
+    loadDataIntoGrid() {
+        const dataHeader = document.getElementById('dataCodeHeaderCheckbox').checked;
+        const rawData = document.getElementById('inputDataArea').value;
+        const data = this.getNewGridData(rawData, dataHeader);
+        const gridWidth = dataHeader ? this.getGridWidthFromDataHeader(rawData) : Math.sqrt(data.length * 8);
+        const gridHeight = dataHeader ? this.getGridHeightFromDataHeader(rawData) : Math.sqrt(data.length * 8);
+
+        console.info( 'Load data into grid: ', gridWidth, gridHeight );
+
+        this.setDataGridSize(gridWidth, gridHeight)
             .generateGrid()
             .fillGridWithData(data);
     }
 
-    getNewGridData(data) {
-        data = data.replace(/\s+/g, '');
-        data = data.split(',').filter(Boolean);
+    getNewGridData(data, dataHeader) {
+        data = this.parseGridData(data);
+
+        if (dataHeader) {
+            data = data.slice(2);
+        }
 
         data = data.map(value => value.replace(/0x/g, ''));
         data = data.map(value => this.padToEight(this.Hex2Bin(value)));
@@ -243,13 +317,29 @@ console.info( 'new size: ', e, newGridSize, this.binaryCode );
         return data;
     }
 
-    setDataGridSize(gridSize) {
+    parseGridData(data) {
+        return data.replace(/\s+/g, '').split(',').filter(Boolean);
+    }
+
+    getGridWidthFromDataHeader(data) {
+        data = this.parseGridData(data);
+
+        return data[0];
+    }
+
+    getGridHeightFromDataHeader(data) {
+        data = this.parseGridData(data);
+
+        return data[1];
+    }
+
+    setDataGridSize(gridWidth, gridHeight) {
         const gridSizeSelector = document.getElementById('gridSizeSelector');
 
-        this.gridWidth = gridSize;
-        this.gridHeight = gridSize;
+        this.gridWidth = gridWidth;
+        this.gridHeight = gridHeight;
 
-        gridSizeSelector.value = gridSize;
+        gridSizeSelector.value = gridWidth;
 
         return this;
     }
